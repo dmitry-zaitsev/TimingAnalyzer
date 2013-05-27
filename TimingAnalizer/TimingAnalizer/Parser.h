@@ -140,7 +140,6 @@ public:
 		LibParser lp (libFileName) ;
 		bool valid;
 
-
 		do 
 		{
 			LibParserCellInfo cell ;
@@ -148,9 +147,11 @@ public:
 			if (valid) 
 			{
 				LibElement * el = new LibElement(cell.name, cell.area, 
-					cell.leakagePower, cell.isSequential, cell.dontTouch);
+				cell.leakagePower, cell.isSequential, cell.dontTouch);
 			}
 		} while (valid) ;
+
+		return 0; //TODO implement
 	}
 };
 	  
