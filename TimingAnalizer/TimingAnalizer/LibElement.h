@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include <string>
 #include <vector>
+#include "Node.h"
+#include "parser_helper.h"
 
 using namespace std;
 
@@ -13,12 +15,19 @@ private:
 	double _Leakage;
 	bool _IsSeq;
 	bool _DontT;
-	vector <vector<float>> _Delay;
+	vector<vector<float>> _Delay;
+	vector<LibParserPinInfo> _Pins;
+	vector<LibParserTimingInfo> _TimingInfo;
 public:
 	//constructors
-	LibElement(string name, double area, double leakage, bool isSequential, bool dontTouch);
+	LibElement(string name, double area, double leakage,
+		bool isSequential, bool dontTouch, 
+		vector<LibParserPinInfo> p,
+		vector<LibParserTimingInfo> t);
+
 	~LibElement(void);
 	//methods
+
 	virtual string GetName()
 	{
 		return _Name;
