@@ -6,11 +6,12 @@
 #include "Node.h"
 
 
-
-int _tmain(int argc, char* argv[])/*[1] path to folder with files 
+/*
+[1] path to folder with files 
 (for example "C:\simple contains simple.v, simple.spef... and contest.lib 
 or contest.lib can be placed in the project directory") 
 */
+int _tmain(int argc, char* argv[])
 {
 	return 0;
 }

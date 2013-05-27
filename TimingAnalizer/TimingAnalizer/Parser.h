@@ -140,7 +140,6 @@ public:
 		LibParser lp (libFileName) ;
 		bool valid;
 
-
 		do 
 		{
 			LibParserCellInfo cell ;

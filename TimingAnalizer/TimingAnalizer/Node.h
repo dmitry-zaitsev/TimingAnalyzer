@@ -1,5 +1,7 @@
 #pragma once
+
 #include <string>
+#include "LibElement.h"
 
 using namespace std;
 
@@ -15,6 +17,13 @@ public:
 
 	virtual void setName(string name) {
 		_Name = name;
+	}
+
+	virtual void setImplementation(LibElement* element) {
+	}
+
+	virtual LibElement* getImplementation() {
+		return 0; //TODO implement
 	}
 	
 	virtual string getType() {

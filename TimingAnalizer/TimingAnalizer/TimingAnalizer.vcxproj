@@ -80,6 +80,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\ispd\ISPD-2012\ispd2012\parser_helpers\parser_helper.h" />
     <ClInclude Include="Analyzer.h" />
+    <ClInclude Include="GateSizer.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="LibElement.h" />
     <ClInclude Include="Library.h" />
@@ -90,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Analyzer.cpp" />
+    <ClCompile Include="GateSizer.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="LibElement.cpp" />
     <ClCompile Include="Library.cpp" />
