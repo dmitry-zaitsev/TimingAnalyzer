@@ -13,6 +13,23 @@ Analyzer::~Analyzer(void)
 {
 }
 
+void CheckEdgesDirection(circuit * c)
+{
+	//TODO
+	/*for (circuit::iterator i = c->begin(); i != c->end(); i++)
+	{
+		LibElement * l = new LibElement();
+		if (i->first->getType() != NULL)
+		{
+			l = i->first->getType();
+			for (int j = 0; j  < l->GetPins().size(); j ++)
+			{
+
+			}
+		}
+	}*/
+}
+
 void RecursiveCalcAAT(Node * nd, Graph* gr)
 {
 	vector <Edge *> * edges = gr->getEdges(nd);

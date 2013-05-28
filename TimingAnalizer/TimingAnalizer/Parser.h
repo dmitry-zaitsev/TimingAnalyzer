@@ -79,13 +79,17 @@ public:
 		return vec;
 	}
 
-	virtual void GetCircuit(string veriFileName, circuit * cir, Library lib) 
+	virtual void GetCircuit(string veriFileName, circuit * cir, Library * lib) 
 	{
 		VerilogParser vp (veriFileName) ;
 		bool valid;
 		vector<Edge *> * vec = new vector<Edge *> ();
+
 		do 
 		{
+			/*
+			Get Names of Edges
+			*/
 			string net ;
 			valid = vp.read_wire (net) ;
 			if (valid)
@@ -98,51 +102,75 @@ public:
 		
 		do 
 		{
+			/*
+			Get Nodes and Start, End Nodes of Edges
+			*/
 			string cellType, cellInst ;
 			vector<std::pair<string, string> > pinNetPairs ;
-			valid = vp.read_cell_inst (cellType, cellInst, pinNetPairs) ;	
+			valid = vp.read_cell_inst (cellType, cellInst, pinNetPairs);	
 			
 			if (valid) 
 			{
-				for (int i=0; i < pinNetPairs.size(); ++i) 
+				vector<LibElement*> * l = lib->GetElements();
+
+				for (int iPair = 0; iPair < pinNetPairs.size(); ++iPair)
 				{
-					for (int j = 0; j < vec->size(); j++)
-					{
-						Edge * edg = (*vec)[j];
-						//create node with name "cellInst outputName"
-						vector<LibElement*> * l = lib.GetElements();
-						LibElement * type = new LibElement();
-						for (int i = 0; i < l->size(); i++)
+						LibElement * type = NULL;
+						LibParserPinInfo pin;
+
+						for (int iElem = 0; iElem < l->size(); iElem++)
 						{
-							if ((*l)[i]->GetName() == cellType)
+							/*
+							Find proper element in a library and choose proper pin
+							*/
+							if ((*l)[iElem]->GetName() == cellType)
 							{
-								type = (*l)[i];
+								type = (*l)[iElem];
+								vector<LibParserPinInfo> pins = type->GetPins();
+
+								for (int iPin = 0; iPin < pins.size(); iPin++)
+								{
+									if(pins[iPin].name == pinNetPairs[iPair].first)
+									{
+										pin = pins[iPin];
+										break;
+									}
+								}
 								break;
 							}
 						}
-						Node * n = new Node(cellInst + " " + pinNetPairs[i].first, type);
-						if (pinNetPairs[i].second == edg->Name)
+						for (int iEdge = 0; iEdge < vec->size(); iEdge++)
 						{
-							if (edg->StartNode == NULL)
+							/*
+							Find Edge which in pinNetPair and filled End and Start Point
+							*/
+							Edge * edg = (*vec)[iEdge];
+							
+							//create node
+							Node * n = new Node(cellInst, type);
+							n->SetPin(pin);
+
+							if (pinNetPairs[iPair].second == edg->Name)
 							{
-								edg->StartNode = n;
+								if (edg->StartNode == NULL)
+								{
+									edg->StartNode = n;
+								}
+								else
+								{
+									edg->EndNode = n;
+								}
+								//add element in result map
+								if (!(*cir)[n])
+								{
+									(*cir)[n] = new vector<Edge *>();
+								}
+								(*cir)[n]->push_back(edg);
 							}
-							else
-							{
-								edg->EndNode = n;
-							}
-							//add element in result map
-							if (!(*cir)[n])
-							{
-								(*cir)[n] = new vector<Edge *>();
-							}
-							(*cir)[n]->push_back(edg);
 						}
-					}
 				}
-		  cout << endl ;
-		}
-	  } while (valid) ; 
+			}
+		} while (valid) ; 
 	}
 
 	virtual vector<LibElement *> * GetLib(string libFileName)

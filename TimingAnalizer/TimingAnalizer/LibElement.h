@@ -27,6 +27,11 @@ public:
 	~LibElement(void);
 	//methods
 
+	virtual vector<LibParserPinInfo> GetPins()
+	{
+		return _Pins;
+	}
+
 	virtual string GetName()
 	{
 		return _Name;

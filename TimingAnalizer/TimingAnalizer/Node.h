@@ -60,12 +60,24 @@ public:
 	{
 		_Slack =_RAT - _AAT;
 	}
+
+	virtual LibParserPinInfo GetPin()
+	{
+		return _Pin;
+	}
+
+	virtual void SetPin(LibParserPinInfo p)
+	{
+		_Pin = p;
+	}
+
 private:
 	string _Name;
 	LibElement * _Type;
 	float _AAT;
 	float _RAT;
 	float _Slack;
+	LibParserPinInfo _Pin;
 };
 
 struct Compare
