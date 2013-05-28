@@ -23,7 +23,7 @@ public:
 		bool isSequential, bool dontTouch, 
 		vector<LibParserPinInfo> p,
 		vector<LibParserTimingInfo> t);
-
+	LibElement(void);
 	~LibElement(void);
 	//methods
 

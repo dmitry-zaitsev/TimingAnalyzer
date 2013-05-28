@@ -8,7 +8,7 @@ using namespace std;
 class Node
 {
 public:
-	Node(string name, string type);
+	Node(string name, LibElement * type);
 	~Node(void);
 
 	virtual string getName() {
@@ -26,11 +26,11 @@ public:
 		return 0; //TODO implement
 	}
 	
-	virtual string getType() {
+	virtual LibElement * getType() {
 		return _Type;
 	}
 
-	virtual void setType(string type) {
+	virtual void setType(LibElement * type) {
 		_Type = type;
 	}
 
@@ -62,7 +62,7 @@ public:
 	}
 private:
 	string _Name;
-	string _Type;
+	LibElement * _Type;
 	float _AAT;
 	float _RAT;
 	float _Slack;

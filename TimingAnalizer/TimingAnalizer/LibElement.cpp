@@ -15,6 +15,9 @@ LibElement::LibElement(string name, double area, double leakage,
 	_TimingInfo = tInfo;
 }
 
+LibElement::LibElement(void)
+{
+}
 
 LibElement::~LibElement(void)
 {

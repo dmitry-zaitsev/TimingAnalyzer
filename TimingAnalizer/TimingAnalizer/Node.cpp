@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Node.h"
 
-Node::Node(string name, string type)
+Node::Node(string name, LibElement * type)
 {
 	_AAT = 0.0;
 	_RAT = 0.0;

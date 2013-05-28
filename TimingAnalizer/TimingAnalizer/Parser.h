@@ -5,6 +5,7 @@
 #include <cassert>
 #include "Graph.h"
 #include "LibElement.h"
+#include "Library.h"
 
 class Parser
 {
@@ -31,7 +32,7 @@ public:
 		bool valid;
 		vector<Node *> * vec = new vector<Node *>();
 		circuit * c = gr.getCircuit();
-		Node * start = new Node("start", "start node");
+		Node * start = new Node("start", NULL);
 		do {
 			string portName;
 			double delay;
@@ -39,7 +40,7 @@ public:
 			
 			if (valid)
 			{
-				Node  * n = new Node (portName, "input");
+				Node  * n = new Node (portName, NULL);
 				vec->push_back(n);
 				Edge * ed;
 				ed->EndNode = n;
@@ -56,7 +57,7 @@ public:
 		bool valid;
 		vector<Node *> * vec = new vector<Node *>();
 		SdcParser sp (sdcFileName) ;
-		Node * endn = new Node("end", "end node");
+		Node * endn = new Node("end", NULL);
 		circuit * c = gr.getCircuit();
 		do 
 		{
@@ -65,7 +66,7 @@ public:
 			valid = sp.read_output_delay (portName, delay) ;
 			if (valid)
 			{
-				Node  * n = new Node (portName, "output");
+				Node  * n = new Node (portName, NULL);
 				vec->push_back(n);
 				Edge * ed;
 				ed->StartNode = n;
@@ -78,7 +79,7 @@ public:
 		return vec;
 	}
 
-	virtual void GetCircuit(string veriFileName, circuit * cir) 
+	virtual void GetCircuit(string veriFileName, circuit * cir, Library lib) 
 	{
 		VerilogParser vp (veriFileName) ;
 		bool valid;
@@ -109,8 +110,17 @@ public:
 					{
 						Edge * edg = (*vec)[j];
 						//create node with name "cellInst outputName"
-						Node * n = new Node(cellInst + " " + pinNetPairs[i].first, cellType);
-						
+						vector<LibElement*> * l = lib.GetElements();
+						LibElement * type = new LibElement();
+						for (int i = 0; i < l->size(); i++)
+						{
+							if ((*l)[i]->GetName() == cellType)
+							{
+								type = (*l)[i];
+								break;
+							}
+						}
+						Node * n = new Node(cellInst + " " + pinNetPairs[i].first, type);
 						if (pinNetPairs[i].second == edg->Name)
 						{
 							if (edg->StartNode == NULL)
@@ -139,7 +149,7 @@ public:
 	{
 		LibParser lp (libFileName) ;
 		bool valid;
-
+		vector<LibElement *> * v = new vector<LibElement *>();
 		do 
 		{
 			LibParserCellInfo cell ;
@@ -148,9 +158,10 @@ public:
 			{
 				LibElement * el = new LibElement(cell.name, cell.area, 
 					cell.leakagePower, cell.isSequential, cell.dontTouch, cell.pins, cell.timingArcs);
+				v->push_back(el);
 			}
 		} while (valid) ;
-		return 0;
+		return v;
 	}
 };
 	  
