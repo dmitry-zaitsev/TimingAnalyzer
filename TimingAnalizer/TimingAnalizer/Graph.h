@@ -11,6 +11,7 @@ struct Edge
 	Node *EndNode;
 	float Delay;
 	string Name;
+	double Cap;
 };
 
 typedef map<Node *, vector<Edge *> *, Compare> circuit;

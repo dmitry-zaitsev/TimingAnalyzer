@@ -15,6 +15,7 @@ public:
 	~Parser(void);
 	
 	//methods
+
 	virtual double GetClock(string sdcFileName)
 	{
 		SdcParser sp (sdcFileName);
@@ -79,26 +80,31 @@ public:
 		return vec;
 	}
 
-	virtual void GetCircuit(string veriFileName, circuit * cir, Library * lib) 
+	virtual vector<Edge *> * GetEdges(string spefFileName)
+	{
+		SpefParser sp (spefFileName) ;
+
+		string net ;
+		double cap ;
+		vector<Edge *> * vec = new vector<Edge *>();
+		bool valid = sp.read_net_cap (net, cap) ;
+
+		while (valid) 
+		{
+			Edge* ed;
+			ed->Name = net;
+			ed->Cap = cap;
+			vec->push_back(ed);
+			valid = sp.read_net_cap (net, cap) ;
+		}
+		return vec;
+	}
+
+	virtual void GetCircuit(string veriFileName, string spefFileName, circuit * cir, Library * lib) 
 	{
 		VerilogParser vp (veriFileName) ;
 		bool valid;
-		vector<Edge *> * vec = new vector<Edge *> ();
-
-		do 
-		{
-			/*
-			Get Names of Edges
-			*/
-			string net ;
-			valid = vp.read_wire (net) ;
-			if (valid)
-			{
-				Edge* ed;
-				ed->Name = net;
-				vec->push_back(ed);
-			}
-		} while (valid) ;
+		vector<Edge *> * vec = GetEdges(spefFileName);
 		
 		do 
 		{
@@ -139,6 +145,7 @@ public:
 								break;
 							}
 						}
+
 						for (int iEdge = 0; iEdge < vec->size(); iEdge++)
 						{
 							/*
