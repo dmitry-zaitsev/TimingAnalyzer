@@ -3,9 +3,9 @@
 class Analyzer
 {
 public:
-	
+
 	//constructors
-	Analyzer(void);
+	Analyzer(Graph * gr);
 	~Analyzer(void);
 	
 	//methods
@@ -62,7 +62,90 @@ public:
 			RecursiveCalcRAT(otp, gr);
 		}
 	}
+
+	virtual void CalcDelaysRecursive(Node * in, double tt)
+	{
+		vector<Edge *> * edFromIn = _Graph->getEdges(in);
+		vector<Edge *> * edFromOut = NULL;
+		Node * out = NULL;
+		float resDelay = 0.0;
+
+		for (int i = 0; i < edFromIn->size(); i++)
+		{
+			Edge * iEd = (*edFromIn)[i];
+
+			if (iEd->StartNode == in)
+			{
+				double cap;
+				out = iEd->EndNode;
+				edFromOut = _Graph->getEdges(out);
+				
+				for (int j = 0; j  < edFromOut->size(); j ++)
+				{
+					/*
+					Calc load cap
+					*/
+					cap = 0.0;
+					Edge * jEd = (*edFromOut)[j];
+					if (jEd->StartNode == out)
+					{
+						cap = cap + jEd->Cap + jEd->EndNode->GetPin().capacitance;
+					}
+				}
+
+				double fallC = 0.0, riseC = 0.0, fallT = 0.0, riseT = 0.0;
+				LibElement * le = out->getType();
+				vector<LibParserTimingInfo> vTI = le->GetArcs();
+				
+				for (int j = 0; j < vTI.size(); j++)
+				{
+					/*
+					Get values from LUT Tables
+					*/
+					if(vTI[j].fromPin == in->getName())
+					{
+						fallC = le->GetValueFromTable(cap, tt, vTI[j].fallDelay);
+						riseC = le->GetValueFromTable(cap, tt, vTI[j].riseDelay);
+						
+						fallC >= riseC ? iEd->Delay = fallC : iEd->Delay = riseC;
+
+						resDelay = iEd->Delay;
+						
+						fallT = le->GetValueFromTable(cap, tt, vTI[j].fallTransition);
+						riseT = le->GetValueFromTable(cap, tt, vTI[j].riseTransition);
+						
+						fallT >= riseT ? tt = fallT : tt = riseT;
+
+						break;
+					}
+				}
+			}
+			else
+			{
+				float nAAT = iEd->StartNode->getAAT();
+				if(nAAT > in->getAAT())
+				{
+					in->setAAT(nAAT);
+				}
+			}
+		}
+		float resAAT = in->getAAT() + resDelay;
+		if (out->getAAT() < resAAT)
+		{
+			out->setAAT(resAAT);
+		}
+		if (out != _Graph->GetEndNode())
+		{
+			CalcDelaysRecursive(out, tt);
+		}
+	}
+
 private:
+
+	//fields
+	Graph * _Graph;
+
+	//methods
 	virtual void RecursiveCalcAAT(Node * nd, Graph* gr)
 	{
 		vector <Edge *> * edges = gr->getEdges(nd);

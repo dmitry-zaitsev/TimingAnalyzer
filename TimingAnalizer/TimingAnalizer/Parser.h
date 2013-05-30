@@ -42,6 +42,7 @@ public:
 			if (valid)
 			{
 				Node  * n = new Node (portName, NULL);
+				n->setAAT(delay);
 				vec->push_back(n);
 				Edge * ed;
 				ed->EndNode = n;

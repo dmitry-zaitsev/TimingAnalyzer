@@ -4,8 +4,9 @@
 #include <vector>
 
 
-Analyzer::Analyzer(void)
+Analyzer::Analyzer(Graph * gr)
 {
+	_Graph = gr;
 }
 
 
