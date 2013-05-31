@@ -14,7 +14,7 @@ private:
 	double _Leakage;
 	bool _IsSeq;
 	bool _DontT;
-	vector<vector<float>> _Delay;
+	vector<vector<double>> _Delay;
 	vector<LibParserPinInfo> _Pins;
 	vector<LibParserTimingInfo> _TimingInfo;
 public:

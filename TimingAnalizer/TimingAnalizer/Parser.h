@@ -51,6 +51,33 @@ public:
 				(*c)[start]->push_back(ed);
 			}
 		} while (valid) ;
+
+		do 
+		{
+			string portName ;
+			string driverSize ;
+			string driverPin ;
+			double inputTransitionFall ;
+			double inputTransitionRise ;
+    
+			valid = sp.read_driver_info (portName, driverSize, driverPin,
+										 inputTransitionFall, inputTransitionRise) ;
+
+			if (valid) 
+			{
+				for (int i = 0; i < vec->size(); i++)
+				{
+					Node * nInV = (*vec)[i];
+					if(nInV->getName() == portName)
+					{
+						inputTransitionFall >= inputTransitionRise ? 
+							nInV->SetTT(inputTransitionFall): 
+							nInV->SetTT(inputTransitionRise);
+						break;
+					}
+				}
+			}
+		} while (valid) ;
 		return vec;
 	}
 

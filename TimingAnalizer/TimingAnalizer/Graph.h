@@ -9,7 +9,7 @@ struct Edge
 {
 	Node *StartNode;
 	Node *EndNode;
-	float Delay;
+	double Delay;
 	string Name;
 	double Cap;
 };

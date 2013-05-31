@@ -44,31 +44,44 @@ public:
 		}
 	}
 
-	virtual void CalcAAT(Graph* gr)
+	virtual void CalcAAT()
 	{
-		for (int i = 0; i < gr->InsCount(); i++)
+		for (int i = 0; i < _Graph->InsCount(); i++)
 		{
-			Node * inp = gr->getInput(i);
-			RecursiveCalcAAT(inp, gr);
+			Node * inp = _Graph->getInput(i);
+			CalcDelaysRecursive(inp, inp->GetTT());
 		}
 	}
 
-	virtual void CalcRAT(Graph * gr, float clk)
+	virtual void CalcRAT(double clk, circuit * c)
 	{
-		for (int i = 0; i < gr->OutsCount(); i++)
+		for (circuit::iterator i = c->begin(); i != c->end(); i++)
 		{
-			Node * otp = gr->getOutput(i);
+			i->first->setRAT(clk);
+		}
+
+		for (int i = 0; i < _Graph->OutsCount(); i++)
+		{
+			Node * otp = _Graph->getOutput(i);
 			otp->setRAT(clk);
-			RecursiveCalcRAT(otp, gr);
+			RecursiveCalcRAT(otp);
 		}
 	}
 
+	
+
+private:
+
+	//fields
+	Graph * _Graph;
+
+	//methods
 	virtual void CalcDelaysRecursive(Node * in, double tt)
 	{
 		vector<Edge *> * edFromIn = _Graph->getEdges(in);
 		vector<Edge *> * edFromOut = NULL;
 		Node * out = NULL;
-		float resDelay = 0.0;
+		double resDelay = 0.0;
 
 		for (int i = 0; i < edFromIn->size(); i++)
 		{
@@ -115,71 +128,65 @@ public:
 						riseT = le->GetValueFromTable(cap, tt, vTI[j].riseTransition);
 						
 						fallT >= riseT ? tt = fallT : tt = riseT;
-
-						break;
 					}
 				}
 			}
 			else
 			{
-				float nAAT = iEd->StartNode->getAAT();
-				if(nAAT > in->getAAT())
+				double nAAT = iEd->StartNode->getAAT();
+				if(nAAT > in->getAAT() && !in->getType()->IsSequential())
 				{
 					in->setAAT(nAAT);
 				}
 			}
 		}
-		float resAAT = in->getAAT() + resDelay;
+		double resAAT;
+		in->getType()->IsSequential() ? resAAT = 0.0 : resAAT = in->getAAT() + resDelay;
 		if (out->getAAT() < resAAT)
 		{
 			out->setAAT(resAAT);
 		}
-		if (out != _Graph->GetEndNode())
+		
+		vector<Edge *> * forRecur = _Graph->getEdges(out);
+		
+		for (int i = 0; i < forRecur->size(); i++)
 		{
-			CalcDelaysRecursive(out, tt);
-		}
-	}
-
-private:
-
-	//fields
-	Graph * _Graph;
-
-	//methods
-	virtual void RecursiveCalcAAT(Node * nd, Graph* gr)
-	{
-		vector <Edge *> * edges = gr->getEdges(nd);
-		float aat = 0.0;
-		for (unsigned int i = 0; i < edges->size(); i++)
-		{
-			Edge * ed = edges->at(i);
-			if (ed->EndNode != nd)
+			/*
+			if next Node is not Out then Recursive Calc
+			*/
+			Edge * ed = (*forRecur)[i];
+			if (ed->StartNode == out)
 			{
-				aat = ed->Delay + nd->getAAT();
-				if (ed->EndNode->getAAT() < aat)
+				if (ed->EndNode->getType() == NULL)
 				{
-					ed->EndNode->setAAT(aat);
+					ed->EndNode->setAAT(resAAT);
 				}
-				RecursiveCalcAAT(ed->EndNode, gr);
-			}
+				else
+				{
+					CalcDelaysRecursive(ed->EndNode, tt);
+				}
+			}	
 		}
 	}
-
-	virtual void RecursiveCalcRAT(Node * nd, Graph * gr)
+	
+	virtual void RecursiveCalcRAT(Node * out)
 	{
-		vector <Edge *> * edges = gr->getEdges(nd);
-		float rat = 0.0;
+		vector <Edge *> * edges = _Graph->getEdges(out);
+		double rat = 0.0;
 		for (unsigned int i = 0; i < edges->size(); i++)
 		{
 			Edge * ed = edges->at(i);
-			if (ed->StartNode != nd)
+			if (ed->StartNode != out)
 			{
-				rat = nd->getRAT() - ed->Delay;
+				rat = out->getRAT() - ed->Delay;
 				if (ed->StartNode->getRAT() > rat)
 				{
 					ed->StartNode->setRAT(rat);
 				}
-				RecursiveCalcRAT(ed->StartNode, gr);
+				if (ed->StartNode->getType() != NULL)
+				{
+					RecursiveCalcRAT(ed->StartNode);
+				}
 			}
 		}
 	}

@@ -34,25 +34,25 @@ public:
 		_Type = type;
 	}
 
-	virtual float getAAT() {
+	virtual double getAAT() {
 		return _AAT;
 	}
 
-	virtual void setAAT(float aat)
+	virtual void setAAT(double aat)
 	{
 		_AAT=aat;
 	}
 
-	virtual float getRAT() {
+	virtual double getRAT() {
 		return _RAT;
 	}
 
-	virtual void setRAT(float rat)
+	virtual void setRAT(double rat)
 	{
 		_RAT=rat;
 	}
 
-	virtual float getSlack() {
+	virtual double getSlack() {
 		return _Slack;
 	}
 
@@ -71,12 +71,23 @@ public:
 		_Pin = p;
 	}
 
+	virtual double GetTT()
+	{
+		return _TT;
+	}
+
+	virtual void SetTT(double tt)
+	{
+		_TT = tt;
+	}
+
 private:
 	string _Name;
 	LibElement * _Type;
-	float _AAT;
-	float _RAT;
-	float _Slack;
+	double _AAT;
+	double _RAT;
+	double _Slack;
+	double _TT;
 	LibParserPinInfo _Pin;
 };
 
