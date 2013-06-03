@@ -100,7 +100,7 @@ public:
 		return vec;
 	}
 
-	virtual vector<Edge *> * GetEdges(string spefFileName, Clock * clk)
+	virtual vector<Edge *> * GetEdges(string spefFileName, Clock * clk, vector<Node *> * ins, vector<Node *> * outs)
 	{
 		SpefParser sp (spefFileName) ;
 
@@ -116,6 +116,26 @@ public:
 				Edge* ed = new Edge;
 				ed->Name = net;
 				ed->Cap = cap;
+				ed->StartNode = NULL;
+				ed->EndNode = NULL;
+
+				for (int i = 0; i < ins->size(); i++)
+				{
+					Node * sn = (*ins)[i];
+					if (ed->Name == sn->getName())
+					{
+						ed->StartNode = sn;
+					}
+				}
+
+				for (int i = 0; i < outs->size(); i++)
+				{
+					Node * en = (*outs)[i];
+					if (ed->Name == en->getName())
+					{
+						ed->EndNode = en;
+					}
+				}
 				vec->push_back(ed);
 			}
 			valid = sp.read_net_cap (net, cap) ;
@@ -123,10 +143,11 @@ public:
 		return vec;
 	}
 
-	virtual void GetCircuit(VerilogParser &vp, string spefFileName, circuit * cir, Library * lib, Clock * clk) 
+	virtual void GetCircuit(VerilogParser &vp, string spefFileName, 
+		circuit * cir, Library * lib, Clock * clk, vector<Node *> * ins, vector<Node *> * outs) 
 	{
 		bool valid;
-		vector<Edge *> * vec = GetEdges(spefFileName, clk);
+		vector<Edge *> * vec = GetEdges(spefFileName, clk, ins, outs);
 		
 		do 
 		{
@@ -185,16 +206,20 @@ public:
 								{
 									edg->StartNode = n;
 								}
-								else
+								else if (edg->EndNode == NULL)
 								{
 									edg->EndNode = n;
 								}
-								//add element in result map
-								if (!(*cir)[n])
+								if (edg->StartNode != NULL && edg->EndNode != NULL)
 								{
-									(*cir)[n] = new vector<Edge *>();
+									//add element in result map
+									if (!(*cir)[n])
+									{
+										(*cir)[n] = new vector<Edge *>();
+									}
+									(*cir)[n]->push_back(edg);
+									cout << edg->Name << " SP: " << edg->StartNode->getName() << " EP: " << edg->EndNode->getName() << endl;
 								}
-								(*cir)[n]->push_back(edg);
 							}
 						}
 				}

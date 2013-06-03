@@ -9,8 +9,9 @@ public:
 	~Analyzer(void);
 	
 	//methods
-	virtual void SetEdgesDirection(circuit * c)
+	virtual void SetEdgesDirection()
 	{
+		circuit * c = _Graph->getCircuit();
 		for (circuit::iterator i = c->begin(); i != c->end(); i++)
 		{
 			Node * n = i->first;
@@ -22,12 +23,15 @@ public:
 					for (int iEdge = 0; iEdge < v->size(); iEdge++)
 					{
 						Edge * ed = (*v)[iEdge];
-						if(ed->StartNode != n)
+						Node * stN = ed->StartNode;
+						if(stN != n)
 						{
-							if (ed->StartNode->getName() == n->getName())
+							cout << stN->getName() << endl;
+							cout << n->getName();
+							if (stN->getName() == n->getName())
 							{
-								ed->EndNode = ed->StartNode;
-								ed->StartNode = n;
+								ed->EndNode = stN;
+								stN = n;
 							}
 						}
 						else
@@ -68,7 +72,7 @@ public:
 		}
 	}
 
-	void TestCheckInputEdges(circuit * c);
+	void TestCheckInputEdges();
 
 	void TestFromInToOut(Graph * gr);
 

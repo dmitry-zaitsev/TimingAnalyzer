@@ -31,17 +31,19 @@ int main(int args, char** argv)
 	Library * lib = new Library(p->GetLib(libP));
 	circuit * cir = new circuit();
 
-	gr->setInputs(p->GetSdcIns(sp, cir));
-	gr->setOutputs(p->GetSdcOuts(sp, cir));
+	vector<Node *> * ins = p->GetSdcIns(sp, cir);
+	gr->setInputs(ins);
+	vector<Node *> * outs = p->GetSdcOuts(sp, cir);
+	gr->setOutputs(outs);
 	gr->SetClock(clk);
 
 	p->GoToRightPlace(vp);
-	p->GetCircuit(vp, spefP, cir, lib, clk);
+	p->GetCircuit(vp, spefP, cir, lib, clk, ins, outs);
 	gr->SetCircuit(cir);
 
 	Analyzer * a = new Analyzer(gr);
-	a->SetEdgesDirection(gr->getCircuit());
-	a->TestCheckInputEdges(gr->getCircuit());
+	a->SetEdgesDirection();
+	a->TestCheckInputEdges();
 
 	return 0;
 }

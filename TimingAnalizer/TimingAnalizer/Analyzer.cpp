@@ -19,8 +19,9 @@ Analyzer::~Analyzer(void)
 2)Can go through Graph from input to output
 */
 
-void Analyzer::TestCheckInputEdges(circuit * c)
+void Analyzer::TestCheckInputEdges()
 {
+	circuit * c = _Graph->getCircuit();
 	for (circuit::iterator i = c->begin(); i != c->end(); i++)
 	{
 		if (i->first->GetPin().isInput)
