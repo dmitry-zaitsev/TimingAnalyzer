@@ -1084,7 +1084,6 @@ void test_sdc_parser (string filename) {
   
 }
 
-
 // Example function that uses SpefParser class to parse the given ISPD-12 spef
 // file. The extracted data is simply printed out in this example.
 void test_spef_parser (string filename) {
@@ -1172,7 +1171,7 @@ void test_lib_parser (string filename) {
   cout << "Read " << readCnt << " number of library cells" << endl ;
 }
 
-
+/*
 int main(int args, char** argv) {
 
   if (args != 3) {
@@ -1211,4 +1210,4 @@ int main(int args, char** argv) {
   }
   
   return 0 ;
-}
+}*/

@@ -4,15 +4,45 @@
 #include "stdafx.h"
 #include "parser_helper.h"
 #include "Node.h"
-
+#include "Parser.h"
+#include "Graph.h"
+#include "Analyzer.h"
+#include "Library.h"
 
 /*
 [1] path to folder with files 
 (for example "C:\simple contains simple.v, simple.spef... and contest.lib 
 or contest.lib can be placed in the project directory") 
 */
-int _tmain(int argc, char* argv[])
+
+int main(int args, char** argv)
 {
+	string mainP = "C:\\Games\\TimingAnalyzer\\TimingAnalizer\\simple\\";
+	string veriP = mainP + "simple.v";
+	string spefP = mainP + "simple.spef";
+	string sdcP = mainP + "simple.sdc";
+	string libP = mainP + "contest.lib";
+
+	Parser * p = new Parser();
+	SdcParser sp(sdcP);
+	VerilogParser vp(veriP);
+	Clock * clk = p->GetClock(sp);
+	Graph * gr = new Graph();
+	Library * lib = new Library(p->GetLib(libP));
+	circuit * cir = new circuit();
+
+	gr->setInputs(p->GetSdcIns(sp, cir));
+	gr->setOutputs(p->GetSdcOuts(sp, cir));
+	gr->SetClock(clk);
+
+	p->GoToRightPlace(vp);
+	p->GetCircuit(vp, spefP, cir, lib, clk);
+	gr->SetCircuit(cir);
+
+	Analyzer * a = new Analyzer(gr);
+	a->SetEdgesDirection(gr->getCircuit());
+	a->TestCheckInputEdges(gr->getCircuit());
+
 	return 0;
 }
 

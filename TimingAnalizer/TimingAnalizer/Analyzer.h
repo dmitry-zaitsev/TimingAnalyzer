@@ -9,7 +9,7 @@ public:
 	~Analyzer(void);
 	
 	//methods
-	virtual void CheckEdgesDirection(circuit * c)
+	virtual void SetEdgesDirection(circuit * c)
 	{
 		for (circuit::iterator i = c->begin(); i != c->end(); i++)
 		{
@@ -68,7 +68,11 @@ public:
 		}
 	}
 
-	
+	void TestCheckInputEdges(circuit * c);
+
+	void TestFromInToOut(Graph * gr);
+
+	void TestRecursiveForFITO(Node * n);
 
 private:
 

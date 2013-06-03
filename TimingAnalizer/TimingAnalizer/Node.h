@@ -95,6 +95,6 @@ struct Compare
 	{
 		bool operator()(Node * const &a, Node * const &b) const
 		{
-				return a->getName().compare(b->getName()) > 0;
+			return (a->getName()+a->GetPin().name).compare(b->getName() + b->GetPin().name) > 0;
 		}
 	};

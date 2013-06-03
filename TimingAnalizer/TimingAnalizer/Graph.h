@@ -14,6 +14,13 @@ struct Edge
 	double Cap;
 };
 
+struct Clock
+{
+	string Name;
+	string Port;
+	double Period;
+};
+
 typedef map<Node *, vector<Edge *> *, Compare> circuit;
 
 class Graph
@@ -22,8 +29,7 @@ private:
 	circuit* _Circuit;
 	vector<Node *> * _Inputs;
 	vector<Node *> * _Outputs;
-	Node * _StartNode;
-	Node * _EndNode;
+	Clock * _Clock;
 public:
 	//constructors
 	Graph();
@@ -33,26 +39,16 @@ public:
 	static Graph* gGraph;
 
 	//methods
-	virtual Node * GetStartNode()
+	virtual Clock * GetClock()
 	{
-		return _StartNode;
+		return _Clock;
 	}
 
-	virtual void SetStartNode(Node * n)
+	virtual void SetClock(Clock * clk)
 	{
-		_StartNode = n;
+		_Clock = clk;
 	}
 
-	virtual Node * GetEndNode()
-	{
-		return _EndNode;
-	}
-
-	virtual void SetEndNode(Node * n)
-	{
-		_EndNode = n;
-	}
-	
 	virtual vector<Edge *> * getEdges(Node * node)
 	{
 		return _Circuit->find(node)->second;

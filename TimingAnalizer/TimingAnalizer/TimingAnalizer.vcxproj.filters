@@ -8,12 +8,11 @@
     <ClCompile Include="Library.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Parser.cpp" />
-    <ClCompile Include="parser_helper.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="TimingAnalizer.cpp" />
+    <ClCompile Include="parser_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\ispd\ISPD-2012\ispd2012\parser_helpers\parser_helper.h" />
     <ClInclude Include="Analyzer.h" />
     <ClInclude Include="GateSizer.h" />
     <ClInclude Include="Graph.h" />
@@ -23,6 +22,7 @@
     <ClInclude Include="Parser.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="parser_helper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />

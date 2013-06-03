@@ -15,25 +15,26 @@ public:
 	~Parser(void);
 	
 	//methods
-
-	virtual double GetClock(string sdcFileName)
+	virtual Clock * GetClock(SdcParser &sp)
 	{
-		SdcParser sp (sdcFileName);
 		string clockName;
 		string clockPort;
-		double period;//check
+		double period;
 		bool valid = sp.read_clock (clockName, clockPort, period);
 		assert(valid);
-		return period;
+		Clock * clk = new Clock();
+		clk->Name = clockName;
+		clk->Port = clockPort;
+		clk->Period = period;
+		return clk;
 	}
 
-	virtual vector<Node *> * GetSdcIns(string sdcFileName, Graph  gr)
+	virtual vector<Node *> * GetSdcIns(SdcParser &sp, circuit * cir)
 	{
-		SdcParser sp (sdcFileName) ;	
+
 		bool valid;
 		vector<Node *> * vec = new vector<Node *>();
-		circuit * c = gr.getCircuit();
-		Node * start = new Node("start", NULL);
+
 		do {
 			string portName;
 			double delay;
@@ -43,12 +44,9 @@ public:
 			{
 				Node  * n = new Node (portName, NULL);
 				n->setAAT(delay);
+				//(*cir)[n] = NULL;
+				cir->insert(pair<Node *, vector<Edge *> *>(n, NULL));
 				vec->push_back(n);
-				Edge * ed;
-				ed->EndNode = n;
-				ed->StartNode = start;
-				(*c)[n]->push_back(ed);
-				(*c)[start]->push_back(ed);
 			}
 		} while (valid) ;
 
@@ -81,13 +79,11 @@ public:
 		return vec;
 	}
 
-	virtual vector<Node *> * GetSdcOuts(string sdcFileName, Graph gr)
+	virtual vector<Node *> * GetSdcOuts(SdcParser &sp, circuit * cir)
 	{
 		bool valid;
 		vector<Node *> * vec = new vector<Node *>();
-		SdcParser sp (sdcFileName) ;
-		Node * endn = new Node("end", NULL);
-		circuit * c = gr.getCircuit();
+
 		do 
 		{
 			string portName ;
@@ -96,19 +92,15 @@ public:
 			if (valid)
 			{
 				Node  * n = new Node (portName, NULL);
+				(*cir)[n] = NULL;
 				vec->push_back(n);
-				Edge * ed;
-				ed->StartNode = n;
-				ed->EndNode = endn;
-				(*c)[n]->push_back(ed);
-				(*c)[endn]->push_back(ed);
 			}
 		} 
 		while (valid) ;
 		return vec;
 	}
 
-	virtual vector<Edge *> * GetEdges(string spefFileName)
+	virtual vector<Edge *> * GetEdges(string spefFileName, Clock * clk)
 	{
 		SpefParser sp (spefFileName) ;
 
@@ -119,20 +111,22 @@ public:
 
 		while (valid) 
 		{
-			Edge* ed;
-			ed->Name = net;
-			ed->Cap = cap;
-			vec->push_back(ed);
+			if (clk->Port != net)
+			{
+				Edge* ed = new Edge;
+				ed->Name = net;
+				ed->Cap = cap;
+				vec->push_back(ed);
+			}
 			valid = sp.read_net_cap (net, cap) ;
 		}
 		return vec;
 	}
 
-	virtual void GetCircuit(string veriFileName, string spefFileName, circuit * cir, Library * lib) 
+	virtual void GetCircuit(VerilogParser &vp, string spefFileName, circuit * cir, Library * lib, Clock * clk) 
 	{
-		VerilogParser vp (veriFileName) ;
 		bool valid;
-		vector<Edge *> * vec = GetEdges(spefFileName);
+		vector<Edge *> * vec = GetEdges(spefFileName, clk);
 		
 		do 
 		{
@@ -208,23 +202,46 @@ public:
 		} while (valid) ; 
 	}
 
-	virtual vector<LibElement *> * GetLib(string libFileName)
+	virtual void GoToRightPlace(VerilogParser &vp)
 	{
-		LibParser lp (libFileName) ;
-		bool valid;
-		vector<LibElement *> * v = new vector<LibElement *>();
-		do 
-		{
-			LibParserCellInfo cell ;
-			valid = lp.read_cell_info (cell) ;
-			if (valid) 
-			{
-				LibElement * el = new LibElement(cell.name, cell.area, 
-					cell.leakagePower, cell.isSequential, cell.dontTouch, cell.pins, cell.timingArcs);
-				v->push_back(el);
-			}
-		} while (valid) ;
-		return v;
+	  string moduleName ;
+	  bool valid = vp.read_module (moduleName) ;
+	  assert (valid);
+
+	  do 
+	  {
+		string primaryInput ;
+		valid = vp.read_primary_input (primaryInput) ;
+	  } while (valid) ;
+	  do 
+	  {
+		string primaryOutput ;
+		valid = vp.read_primary_output (primaryOutput) ;
+	  } while (valid) ;
+	  do 
+	  {
+		string net ;
+		valid = vp.read_wire (net) ;
+	  } while (valid) ;
 	}
+
+	virtual vector<LibElement *> * GetLib(string libFileName)
+		{
+			LibParser lp (libFileName) ;
+			bool valid;
+			vector<LibElement *> * v = new vector<LibElement *>();
+			do 
+			{
+				LibParserCellInfo cell ;
+				valid = lp.read_cell_info (cell) ;
+				if (valid) 
+				{
+					LibElement * el = new LibElement(cell.name, cell.area, 
+						cell.leakagePower, cell.isSequential, cell.dontTouch, cell.pins, cell.timingArcs);
+					v->push_back(el);
+				}
+			} while (valid) ;
+			return v;
+		}
 };
 	  

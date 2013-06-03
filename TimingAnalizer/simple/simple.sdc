@@ -2,7 +2,7 @@
 # Copyright © 2011, Synopsys, Inc. and others. All Rights reserved.
 
 # clock definition
-create_clock -name mclk -period 500.0 [get_ports ispd_clk]
+create_clock -name mclk -period 50.0 [get_ports ispd_clk]
 
 # input delays
 set_input_delay  0.0 [get_ports {inp1}] -clock mclk
