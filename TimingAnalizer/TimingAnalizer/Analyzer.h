@@ -26,8 +26,6 @@ public:
 						Node * stN = ed->StartNode;
 						if(stN != n)
 						{
-							cout << stN->getName() << endl;
-							cout << n->getName();
 							if (stN->getName() == n->getName())
 							{
 								ed->EndNode = stN;

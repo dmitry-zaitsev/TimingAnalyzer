@@ -212,19 +212,43 @@ public:
 								}
 								if (edg->StartNode != NULL && edg->EndNode != NULL)
 								{
-									//add element in result map
-									if (!(*cir)[n])
+									//add elements in result map
+									Node * sn = edg->StartNode;
+									if (!(*cir)[sn])
 									{
-										(*cir)[n] = new vector<Edge *>();
+										(*cir)[sn] = new vector<Edge *>();
 									}
-									(*cir)[n]->push_back(edg);
-									cout << edg->Name << " SP: " << edg->StartNode->getName() << " EP: " << edg->EndNode->getName() << endl;
+									(*cir)[sn]->push_back(edg);
+
+									Node * en = edg->EndNode;
+									if (!(*cir)[en])
+									{
+										(*cir)[en] = new vector<Edge *>();
+									}
+									(*cir)[en]->push_back(edg);
+
+									//cout << edg->Name << " SP: " << edg->StartNode->getName() << " EP: " << edg->EndNode->getName() << endl;
 								}
 							}
 						}
+
+
 				}
 			}
 		} while (valid) ; 
+	}
+
+	virtual void GetInners(circuit * cir, instances * insts)
+	{
+		for (circuit::iterator i = cir->begin(); i != cir->end(); i++)
+		{
+			string cellInst = i->first->getName();
+			if(!(*insts)[cellInst])
+			{
+				(*insts)[cellInst] = new vector<Node *>();
+			}
+			(*insts)[cellInst]->push_back(i->first);
+		}
 	}
 
 	virtual void GoToRightPlace(VerilogParser &vp)

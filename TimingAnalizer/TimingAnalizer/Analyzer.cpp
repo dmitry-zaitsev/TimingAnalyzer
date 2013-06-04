@@ -27,6 +27,7 @@ void Analyzer::TestCheckInputEdges()
 		if (i->first->GetPin().isInput)
 		{
 			int ups = 0, downs = 0;
+			cout << i->second->size();
 			for (int j = 0; j  < i->second->size(); j ++)
 			{
 				if ((*i->second)[j]->EndNode == i->first)
@@ -40,11 +41,11 @@ void Analyzer::TestCheckInputEdges()
 			}
 			if (ups != 1)
 			{
-				cout << "Node with Name " << i->first->getName() << "has more or less than one UPS.";
+				cout << "Node with Name " << i->first->getName() << "_" << i->first->GetPin().name << " has UPS: " << ups <<endl;
 			}
 			if (downs != 1)
 			{
-				cout << "Node with Name " << i->first->getName() << "has more than one DOWNS.";
+				cout << "Node with Name " << i->first->getName() << "_" << i->first->GetPin().name << " has DOWNS: " << downs << endl;
 			}
 		}
 	}

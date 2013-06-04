@@ -30,6 +30,7 @@ int main(int args, char** argv)
 	Graph * gr = new Graph();
 	Library * lib = new Library(p->GetLib(libP));
 	circuit * cir = new circuit();
+	instances * insts = new instances();
 
 	vector<Node *> * ins = p->GetSdcIns(sp, cir);
 	gr->setInputs(ins);
@@ -40,9 +41,12 @@ int main(int args, char** argv)
 	p->GoToRightPlace(vp);
 	p->GetCircuit(vp, spefP, cir, lib, clk, ins, outs);
 	gr->SetCircuit(cir);
+	p->GetInners(cir, insts);
+	gr->setInsts(insts);
 
 	Analyzer * a = new Analyzer(gr);
 	a->SetEdgesDirection();
+
 	a->TestCheckInputEdges();
 
 	return 0;

@@ -4,11 +4,13 @@
 #include <vector>
 #include "parser_helper.h"
 
+
 using namespace std;
 
 class LibElement
 {
 private:
+	//fields
 	string _Name;
 	double _Area;
 	double _Leakage;

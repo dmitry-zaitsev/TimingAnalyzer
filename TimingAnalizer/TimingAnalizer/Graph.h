@@ -22,10 +22,12 @@ struct Clock
 };
 
 typedef map<Node *, vector<Edge *> *, Compare> circuit;
+typedef map<string, vector<Node *> *> instances;
 
 class Graph
 {
 private:
+	instances * _Instances;
 	circuit* _Circuit;
 	vector<Node *> * _Inputs;
 	vector<Node *> * _Outputs;
@@ -38,7 +40,6 @@ public:
 	//fields
 	static Graph* gGraph;
 
-	//methods
 	virtual Clock * GetClock()
 	{
 		return _Clock;
@@ -52,6 +53,16 @@ public:
 	virtual vector<Edge *> * getEdges(Node * node)
 	{
 		return _Circuit->find(node)->second;
+	}
+
+	virtual instances * getInsts()
+	{
+		return _Instances;
+	}
+
+	virtual void setInsts(instances * insts)
+	{
+		_Instances = insts;
 	}
 
 	virtual circuit * getCircuit()
