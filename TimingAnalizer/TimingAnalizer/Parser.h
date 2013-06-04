@@ -238,7 +238,7 @@ public:
 		} while (valid) ; 
 	}
 
-	virtual void GetInners(circuit * cir, instances * insts)
+	virtual void GetInsts(circuit * cir, instances * insts)
 	{
 		for (circuit::iterator i = cir->begin(); i != cir->end(); i++)
 		{
@@ -248,6 +248,52 @@ public:
 				(*insts)[cellInst] = new vector<Node *>();
 			}
 			(*insts)[cellInst]->push_back(i->first);
+		}
+	}
+
+	virtual void GetInners(circuit * cir, instances * insts)
+	{
+		for (circuit::iterator iIter = cir->begin(); iIter != cir->end(); iIter++)
+		{
+			Node * n = iIter->first;
+			vector<LibParserTimingInfo> vecTI = n->getType()->GetArcs();
+
+			if (n->GetPin().isInput && n->getType() != NULL)
+			{	
+				for (int iTI = 0; iTI < vecTI.size(); iTI++)
+				{
+					/*
+					Find TimingArc with fromPin equals our Pin in current Node
+					*/
+					string fP = vecTI[iTI].fromPin;
+					string tP = vecTI[iTI].toPin;
+					if (fP == n->GetPin().name)
+					{
+						Edge * edForIn = new Edge();
+						edForIn->Name = n->getName()+ "_" + fP + "_" + tP;
+						edForIn->StartNode = n;
+
+						vector<Node *> * vecN = (*insts)[n->getName()];
+						for (int iNode = 0; iNode < vecN->size(); iNode++)
+						{
+							/*
+							Find in Instances Node with Pin equals toPin in current TimingArc
+							*/
+							Node * en = (*vecN)[iNode];
+							if (en->GetPin().name == tP)
+							{
+								edForIn->EndNode = en;
+								if (!iIter->second)
+								{
+									iIter->second = new vector<Edge *> ();
+								}
+								iIter->second->push_back(edForIn);
+								(*cir)[en]->push_back(edForIn);
+							}
+						}
+					}	
+				}
+			}
 		}
 	}
 

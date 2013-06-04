@@ -24,24 +24,25 @@ void Analyzer::TestCheckInputEdges()
 	circuit * c = _Graph->getCircuit();
 	for (circuit::iterator i = c->begin(); i != c->end(); i++)
 	{
-		if (i->first->GetPin().isInput)
+		Node * n = i->first;
+		if (n->GetPin().isInput && n->getType() != NULL)
 		{
 			int ups = 0, downs = 0;
 			cout << i->second->size();
 			for (int j = 0; j  < i->second->size(); j ++)
 			{
-				if ((*i->second)[j]->EndNode == i->first)
+				if ((*i->second)[j]->EndNode == n)
 				{
 					ups++;
 				}
-				if ((*i->second)[j]->StartNode == i->first)
+				if ((*i->second)[j]->StartNode == n)
 				{
 					downs++;
 				}
 			}
 			if (ups != 1)
 			{
-				cout << "Node with Name " << i->first->getName() << "_" << i->first->GetPin().name << " has UPS: " << ups <<endl;
+				cout << "Node with Name " << n->getName() << "_" << n->GetPin().name << " has UPS: " << ups <<endl;
 			}
 			if (downs != 1)
 			{

@@ -31,21 +31,34 @@ int main(int args, char** argv)
 	Library * lib = new Library(p->GetLib(libP));
 	circuit * cir = new circuit();
 	instances * insts = new instances();
-
+	
+	//Get Inputs, Outputs, Clock from Parser
 	vector<Node *> * ins = p->GetSdcIns(sp, cir);
-	gr->setInputs(ins);
 	vector<Node *> * outs = p->GetSdcOuts(sp, cir);
+	
+	//Set Inputs, Outputs, Clock to Graph
+	gr->setInputs(ins);
 	gr->setOutputs(outs);
 	gr->SetClock(clk);
-
+	
+	//Get Simple(without inner edges of LibElements) Circuit from Parser
 	p->GoToRightPlace(vp);
 	p->GetCircuit(vp, spefP, cir, lib, clk, ins, outs);
+	
+	//Set Simple Circuit to Graph
 	gr->SetCircuit(cir);
-	p->GetInners(cir, insts);
-	gr->setInsts(insts);
-
+	
+	//Set Directions
 	Analyzer * a = new Analyzer(gr);
 	a->SetEdgesDirection();
+	
+	//Get and Set Instances
+	p->GetInsts(cir, insts);
+	gr->setInsts(insts);
+	
+	//Get and Set Complete Circuit
+	p->GetInners(cir, insts);
+	gr->SetCircuit(cir);
 
 	a->TestCheckInputEdges();
 
