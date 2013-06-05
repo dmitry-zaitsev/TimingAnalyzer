@@ -22,31 +22,34 @@ Analyzer::~Analyzer(void)
 void Analyzer::TestCheckInputEdges()
 {
 	circuit * c = _Graph->getCircuit();
-	for (circuit::iterator i = c->begin(); i != c->end(); i++)
+	for (circuit::iterator iIter = c->begin(); iIter != c->end(); iIter++)
 	{
-		Node * n = i->first;
+		int ups, downs;
+		Node * n = iIter->first;
 		if (n->GetPin().isInput && n->getType() != NULL)
 		{
-			int ups = 0, downs = 0;
-			cout << i->second->size();
-			for (int j = 0; j  < i->second->size(); j ++)
+			ups = 0;
+			downs = 0;
+			for (int iEdge = 0; iEdge  < iIter->second->size(); iEdge ++)
 			{
-				if ((*i->second)[j]->EndNode == n)
+				cout << n->getName() << "\t" << (*iIter->second)[iEdge]->StartNode->getName() << "\t" << (*iIter->second)[iEdge]->EndNode->getName() << endl;
+				if ((*iIter->second)[iEdge]->EndNode == n)
 				{
 					ups++;
 				}
-				if ((*i->second)[j]->StartNode == n)
+				if ((*iIter->second)[iEdge]->StartNode == n)
 				{
 					downs++;
 				}
 			}
+			cout << "Alltogether is: " << iIter->second->size() << endl;
 			if (ups != 1)
 			{
 				cout << "Node with Name " << n->getName() << "_" << n->GetPin().name << " has UPS: " << ups <<endl;
 			}
 			if (downs != 1)
 			{
-				cout << "Node with Name " << i->first->getName() << "_" << i->first->GetPin().name << " has DOWNS: " << downs << endl;
+				cout << "Node with Name " << n->getName() << "_" << n->GetPin().name << " has DOWNS: " << downs << endl;
 			}
 		}
 	}

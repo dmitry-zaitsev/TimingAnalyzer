@@ -24,11 +24,13 @@ public:
 					{
 						Edge * ed = (*v)[iEdge];
 						Node * stN = ed->StartNode;
+						Node * enN = ed->EndNode;
 						if(stN != n)
 						{
 							if (stN->getName() == n->getName())
 							{
-								ed->EndNode = stN;
+								Node * buf = stN;
+								enN = buf;
 								stN = n;
 							}
 						}
@@ -36,10 +38,13 @@ public:
 						{
 							if (ed->EndNode->getName() != n->getName())
 							{
-								ed->StartNode = ed->EndNode;
-								ed->EndNode = n;
+								Node * buf = enN;
+								stN = buf;
+								enN = n;
 							}	
 						}
+						ed->StartNode = stN;
+						ed->EndNode = enN;
 					}
 				}
 			}

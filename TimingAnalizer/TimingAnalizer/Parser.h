@@ -188,6 +188,10 @@ public:
 								break;
 							}
 						}
+						//create node
+						Node * n = new Node(cellInst, type);
+						n->SetPin(pin);
+						//cout << n->getName() << "\t" << n->GetPin().name << endl;
 
 						for (int iEdge = 0; iEdge < vec->size(); iEdge++)
 						{
@@ -196,10 +200,7 @@ public:
 							*/
 							Edge * edg = (*vec)[iEdge];
 							
-							//create node
-							Node * n = new Node(cellInst, type);
-							n->SetPin(pin);
-
+							
 							if (pinNetPairs[iPair].second == edg->Name)
 							{
 								if (edg->StartNode == NULL)
@@ -213,6 +214,8 @@ public:
 								if (edg->StartNode != NULL && edg->EndNode != NULL)
 								{
 									//add elements in result map
+									
+									
 									Node * sn = edg->StartNode;
 									if (!(*cir)[sn])
 									{
@@ -227,12 +230,12 @@ public:
 									}
 									(*cir)[en]->push_back(edg);
 
-									//cout << edg->Name << " SP: " << edg->StartNode->getName() << " EP: " << edg->EndNode->getName() << endl;
+									/*cout << edg->Name << "\t" << sn->getName() 
+										<< ": " << sn->GetPin().name << "\t" 
+										<< en->getName() << ": " << en->GetPin().name << endl;*/
 								}
 							}
 						}
-
-
 				}
 			}
 		} while (valid) ; 
@@ -256,10 +259,11 @@ public:
 		for (circuit::iterator iIter = cir->begin(); iIter != cir->end(); iIter++)
 		{
 			Node * n = iIter->first;
-			vector<LibParserTimingInfo> vecTI = n->getType()->GetArcs();
-
-			if (n->GetPin().isInput && n->getType() != NULL)
+			
+			if ((n->GetPin().isInput) && (n->getType() != NULL) && !(n->getType()->IsSequential()))
 			{	
+				vector<LibParserTimingInfo> vecTI = n->getType()->GetArcs();
+				
 				for (int iTI = 0; iTI < vecTI.size(); iTI++)
 				{
 					/*
@@ -289,6 +293,44 @@ public:
 								}
 								iIter->second->push_back(edForIn);
 								(*cir)[en]->push_back(edForIn);
+							}
+						}
+					}	
+				}
+			}
+			else if (!(n->GetPin().isInput) && (n->getType() != NULL) && (n->getType()->IsSequential()))
+			{
+				vector<LibParserTimingInfo> vecTI = n->getType()->GetArcs();
+				
+				for (int iTI = 0; iTI < vecTI.size(); iTI++)
+				{
+					/*
+					Find TimingArc with toPin equals our Pin in current Node
+					*/
+					string fP = vecTI[iTI].fromPin;
+					string tP = vecTI[iTI].toPin;
+					if (tP == n->GetPin().name)
+					{
+						Edge * edForIn = new Edge();
+						edForIn->Name = n->getName()+ "_" + fP + "_" + tP;
+						edForIn->EndNode = n;
+
+						vector<Node *> * vecN = (*insts)[n->getName()];
+						for (int iNode = 0; iNode < vecN->size(); iNode++)
+						{
+							/*
+							Find in Instances Node with Pin equals toPin in current TimingArc
+							*/
+							Node * sn = (*vecN)[iNode];
+							if (sn->GetPin().isInput)
+							{
+								edForIn->StartNode = sn;
+								if (!iIter->second)
+								{
+									iIter->second = new vector<Edge *> ();
+								}
+								iIter->second->push_back(edForIn);
+								(*cir)[sn]->push_back(edForIn);
 							}
 						}
 					}	
