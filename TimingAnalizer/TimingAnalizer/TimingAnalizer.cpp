@@ -60,7 +60,8 @@ int main(int args, char** argv)
 	p->GetInners(cir, insts);
 	gr->SetCircuit(cir);
 
-	a->TestCheckInputEdges();
+	//a->TestCheckInputEdges();
+	a->TestFromInToOut();
 
 	return 0;
 }

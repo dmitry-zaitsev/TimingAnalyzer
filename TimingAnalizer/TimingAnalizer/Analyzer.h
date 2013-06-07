@@ -77,14 +77,16 @@ public:
 
 	void TestCheckInputEdges();
 
-	void TestFromInToOut(Graph * gr);
+	void TestFromInToOut();
 
-	void TestRecursiveForFITO(Node * n);
 
 private:
 
 	//fields
 	Graph * _Graph;
+	
+	//test methods
+	void TestRecursiveForFITO(Node * n);
 
 	//methods
 	virtual void CalcDelaysRecursive(Node * in, double tt)

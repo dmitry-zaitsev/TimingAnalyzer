@@ -32,7 +32,11 @@ void Analyzer::TestCheckInputEdges()
 			downs = 0;
 			for (int iEdge = 0; iEdge  < iIter->second->size(); iEdge ++)
 			{
-				cout << n->getName() << "\t" << (*iIter->second)[iEdge]->StartNode->getName() << "\t" << (*iIter->second)[iEdge]->EndNode->getName() << endl;
+				cout << n->getName() << "\t" 
+					<< (*iIter->second)[iEdge]->StartNode->getName() << "." 
+					<< (*iIter->second)[iEdge]->StartNode->GetPin().name 
+					<<"\t" << (*iIter->second)[iEdge]->EndNode->getName() 
+					<< "." << (*iIter->second)[iEdge]->EndNode->GetPin().name << endl;
 				if ((*iIter->second)[iEdge]->EndNode == n)
 				{
 					ups++;
@@ -56,12 +60,12 @@ void Analyzer::TestCheckInputEdges()
 	cout << "Done 1 Up and Down" << endl;
 }
 
-void Analyzer::TestFromInToOut(Graph * gr)
+void Analyzer::TestFromInToOut()
 {
-	for (int i = 0; i < gr->InsCount(); i++)
+	for (int i = 0; i < _Graph->InsCount(); i++)
 	{
-		Node * n = gr->getInput(i);
-		cout << "FITO Test for" << n->getName() << "input:" << endl;
+		Node * n = _Graph->getInput(i);
+		cout << "FITO Test for " << n->getName() << " input:" << endl;
 		TestRecursiveForFITO(n);
 	}
 	cout << "Thats all with FITO." << endl;
@@ -70,7 +74,6 @@ void Analyzer::TestFromInToOut(Graph * gr)
 void Analyzer::TestRecursiveForFITO(Node * n)
 {
 	vector<Edge *> * ed = _Graph->getEdges(n);
-	cout << "We probably came to out and its name is " << endl;
 
 	for (int j = 0; j < ed->size(); j++)
 	{
@@ -79,7 +82,7 @@ void Analyzer::TestRecursiveForFITO(Node * n)
 			Node * next = (*ed)[j]->EndNode;
 			if (next->getType() == NULL)
 			{
-				cout << next->getName() << endl;
+				cout << "We probably came to out and its name is " << next->getName() << endl;
 			}
 			else
 			{
