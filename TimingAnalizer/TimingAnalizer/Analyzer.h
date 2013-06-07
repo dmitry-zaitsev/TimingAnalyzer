@@ -120,27 +120,29 @@ private:
 				}
 
 				double fallC = 0.0, riseC = 0.0, fallT = 0.0, riseT = 0.0;
-				LibElement * le = out->getType();
-				vector<LibParserTimingInfo> vTI = le->GetArcs();
-				
-				for (int j = 0; j < vTI.size(); j++)
+				if (out->getType() != NULL)
 				{
-					/*
-					Get values from LUT Tables
-					*/
-					if(vTI[j].fromPin == in->getName())
+					LibElement * le = out->getType();
+					vector<LibParserTimingInfo> vTI = le->GetArcs();
+					for (int j = 0; j < vTI.size(); j++)
 					{
-						fallC = le->GetValueFromTable(cap, tt, vTI[j].fallDelay);
-						riseC = le->GetValueFromTable(cap, tt, vTI[j].riseDelay);
+						/*
+						Get values from LUT Tables
+						*/
+						if(vTI[j].fromPin == in->getName())
+						{
+							fallC = le->GetValueFromTable(cap, tt, vTI[j].fallDelay);
+							riseC = le->GetValueFromTable(cap, tt, vTI[j].riseDelay);
 						
-						fallC >= riseC ? iEd->Delay = fallC : iEd->Delay = riseC;
+							fallC >= riseC ? iEd->Delay = fallC : iEd->Delay = riseC;
 
-						resDelay = iEd->Delay;
+							resDelay = iEd->Delay;
 						
-						fallT = le->GetValueFromTable(cap, tt, vTI[j].fallTransition);
-						riseT = le->GetValueFromTable(cap, tt, vTI[j].riseTransition);
+							fallT = le->GetValueFromTable(cap, tt, vTI[j].fallTransition);
+							riseT = le->GetValueFromTable(cap, tt, vTI[j].riseTransition);
 						
-						fallT >= riseT ? tt = fallT : tt = riseT;
+							fallT >= riseT ? tt = fallT : tt = riseT;
+						}
 					}
 				}
 			}
@@ -154,7 +156,7 @@ private:
 			}
 		}
 		double resAAT;
-		in->getType()->IsSequential() ? resAAT = 0.0 : resAAT = in->getAAT() + resDelay;
+		((in->getType() != NULL) && (in->getType()->IsSequential())) ? resAAT = 0.0 : resAAT = in->getAAT() + resDelay;
 		if (out->getAAT() < resAAT)
 		{
 			out->setAAT(resAAT);
