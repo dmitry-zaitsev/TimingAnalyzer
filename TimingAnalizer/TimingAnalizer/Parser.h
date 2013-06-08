@@ -27,6 +27,7 @@ public:
 		clk->Port = clockPort;
 		clk->Period = period;
 		return clk;
+		cout << "Parsing completed: Clock" << endl;
 	}
 
 	virtual vector<Node *> * GetSdcIns(SdcParser &sp, circuit * cir)
@@ -76,6 +77,7 @@ public:
 				}
 			}
 		} while (valid) ;
+		cout << "Parsing completed: SdcIns" << endl;
 		return vec;
 	}
 
@@ -97,6 +99,7 @@ public:
 			}
 		} 
 		while (valid) ;
+		cout << "Parsing completed: SdcOuts" << endl;
 		return vec;
 	}
 
@@ -140,6 +143,7 @@ public:
 			}
 			valid = sp.read_net_cap (net, cap) ;
 		}
+		cout << "Parsing completed: Edges" << endl;
 		return vec;
 	}
 
@@ -238,6 +242,7 @@ public:
 				}
 			}
 		} while (valid) ; 
+		cout << "Parsing completed: Circuit" << endl;
 	}
 
 	virtual void GetInsts(circuit * cir, instances * insts)
@@ -251,6 +256,7 @@ public:
 			}
 			(*insts)[cellInst]->push_back(i->first);
 		}
+		cout << "Parsing completed: Insts" << endl;
 	}
 
 	virtual void GetInners(circuit * cir, instances * insts)
@@ -336,6 +342,7 @@ public:
 				}
 			}
 		}
+		cout << "Parsing completed: Inners" << endl;
 	}
 
 	virtual void GoToRightPlace(VerilogParser &vp)
@@ -377,6 +384,7 @@ public:
 					v->push_back(el);
 				}
 			} while (valid) ;
+			cout << "Parsing completed: Library" << endl;
 			return v;
 		}
 };

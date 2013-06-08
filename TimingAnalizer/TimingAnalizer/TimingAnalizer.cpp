@@ -17,10 +17,10 @@ or contest.lib can be placed in the project directory")
 
 int main(int args, char* argv[])
 {
-	string mainP = "C:\\Games\\TimingAnalyzer\\TimingAnalizer\\simple\\";
-	string veriP = mainP + "simple.v";
-	string spefP = mainP + "simple.spef";
-	string sdcP = mainP + "simple.sdc";
+	string mainP = "C:\\Games\\TimingAnalyzer\\TimingAnalizer\\DMA_fast\\";
+	string veriP = mainP + "DMA_fast.v";
+	string spefP = mainP + "DMA_fast.spef";
+	string sdcP = mainP + "DMA_fast.sdc";
 	string libP = mainP + "contest.lib";
 
 	Parser * p = new Parser();

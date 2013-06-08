@@ -183,6 +183,10 @@ private:
 									}
 									else
 									{
+										if(ed->EndNode->getAAT() > 0 && ed->EndNode->getType()->IsSequential()) {
+											continue;
+										}
+
 										CalcDelaysRecursive(ed->EndNode, tt, out->getAAT() + ed->Delay);
 									}
 								}	
