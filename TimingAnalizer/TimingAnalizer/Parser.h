@@ -200,7 +200,6 @@ public:
 							*/
 							Edge * edg = (*vec)[iEdge];
 							
-							
 							if (pinNetPairs[iPair].second == edg->Name)
 							{
 								if (edg->StartNode == NULL)

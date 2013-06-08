@@ -7,7 +7,7 @@ public:
 	//constructors
 	Analyzer(Graph * gr);
 	~Analyzer(void);
-	
+
 	//methods
 	virtual void SetEdgesDirection()
 	{
@@ -53,11 +53,18 @@ public:
 
 	virtual void CalcAAT()
 	{
+		_Graph->SetZeroAAT();
 		for (int i = 0; i < _Graph->InsCount(); i++)
 		{
 			Node * inp = _Graph->getInput(i);
-			CalcDelaysRecursive(inp, inp->GetTT());
+			vector<Edge *> * v = _Graph->getEdges(inp);
+			for (int j = 0; j < v->size(); j++)
+			{
+				Edge * e = (*v)[j];
+				CalcDelaysRecursive(e->EndNode, inp->GetTT(), inp->getAAT());
+			}
 		}
+		cout << "CalcAAT() is done." << endl;
 	}
 
 	virtual void CalcRAT(double clk, circuit * c)
@@ -79,7 +86,6 @@ public:
 
 	void TestFromInToOut();
 
-
 private:
 
 	//fields
@@ -89,8 +95,13 @@ private:
 	void TestRecursiveForFITO(Node * n);
 
 	//methods
-	virtual void CalcDelaysRecursive(Node * in, double tt)
+	virtual void CalcDelaysRecursive(Node * in, double tt, double aat)
 	{
+		if (in->getAAT() < aat)
+		{
+			in->setAAT(aat);
+		}
+
 		vector<Edge *> * edFromIn = _Graph->getEdges(in);
 		vector<Edge *> * edFromOut = NULL;
 		Node * out = NULL;
@@ -99,19 +110,18 @@ private:
 		for (int i = 0; i < edFromIn->size(); i++)
 		{
 			Edge * iEd = (*edFromIn)[i];
-
 			if (iEd->StartNode == in)
 			{
-				double cap;
+				double cap = 0.0;
 				out = iEd->EndNode;
 				edFromOut = _Graph->getEdges(out);
-				
+
 				for (int j = 0; j  < edFromOut->size(); j ++)
 				{
 					/*
 					Calc load cap
 					*/
-					cap = 0.0;
+					
 					Edge * jEd = (*edFromOut)[j];
 					if (jEd->StartNode == out)
 					{
@@ -129,7 +139,9 @@ private:
 						/*
 						Get values from LUT Tables
 						*/
-						if(vTI[j].fromPin == in->getName())
+						if((vTI[j].fromPin == in->GetPin().name) 
+							|| (in->getType()->IsSequential() && vTI[j].toPin == out->GetPin().name)
+							)
 						{
 							fallC = le->GetValueFromTable(cap, tt, vTI[j].fallDelay);
 							riseC = le->GetValueFromTable(cap, tt, vTI[j].riseDelay);
@@ -137,50 +149,48 @@ private:
 							fallC >= riseC ? iEd->Delay = fallC : iEd->Delay = riseC;
 
 							resDelay = iEd->Delay;
+							cout << in->getAAT() << endl;
+							double resAAT = !out->getType()->IsSequential() ? in->getAAT() + resDelay : resDelay;
+							if (out->getAAT() < resAAT)
+							{
+								out->setAAT(resAAT);
+							}
 						
 							fallT = le->GetValueFromTable(cap, tt, vTI[j].fallTransition);
 							riseT = le->GetValueFromTable(cap, tt, vTI[j].riseTransition);
 						
 							fallT >= riseT ? tt = fallT : tt = riseT;
+							//
+							cout << "Result Delay for Edge between " << in->getName() 
+								<< "." << in->GetPin().name << " and " << out->getName()
+								<< "." << out->GetPin().name <<" is " << resDelay << endl;
+							cout << "Result AAT for EndNode is " << resAAT;
+							cout << ". TT is " << tt << endl << endl;
+							
+							vector<Edge *> * forRecur = _Graph->getEdges(out);
+		
+							for (int i = 0; i < forRecur->size(); i++)
+							{
+								/*
+								if next Node is not Out then Recursive Calc
+								*/
+								Edge * ed = (*forRecur)[i];
+								if (ed->StartNode == out)
+								{
+									if (ed->EndNode->getType() == NULL)
+									{
+										ed->EndNode->setAAT(resAAT);
+									}
+									else
+									{
+										CalcDelaysRecursive(ed->EndNode, tt, out->getAAT() + ed->Delay);
+									}
+								}	
+							}
 						}
 					}
 				}
 			}
-			else
-			{
-				double nAAT = iEd->StartNode->getAAT();
-				if(nAAT > in->getAAT() && !in->getType()->IsSequential())
-				{
-					in->setAAT(nAAT);
-				}
-			}
-		}
-		double resAAT;
-		((in->getType() != NULL) && (in->getType()->IsSequential())) ? resAAT = 0.0 : resAAT = in->getAAT() + resDelay;
-		if (out->getAAT() < resAAT)
-		{
-			out->setAAT(resAAT);
-		}
-		
-		vector<Edge *> * forRecur = _Graph->getEdges(out);
-		
-		for (int i = 0; i < forRecur->size(); i++)
-		{
-			/*
-			if next Node is not Out then Recursive Calc
-			*/
-			Edge * ed = (*forRecur)[i];
-			if (ed->StartNode == out)
-			{
-				if (ed->EndNode->getType() == NULL)
-				{
-					ed->EndNode->setAAT(resAAT);
-				}
-				else
-				{
-					CalcDelaysRecursive(ed->EndNode, tt);
-				}
-			}	
 		}
 	}
 	

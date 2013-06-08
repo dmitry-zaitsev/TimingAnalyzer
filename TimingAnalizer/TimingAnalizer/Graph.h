@@ -84,6 +84,18 @@ public:
 		}
 	}
 
+	virtual void SetZeroAAT()
+	{
+		for (circuit::iterator i =_Circuit->begin(); i !=  _Circuit->end(); i++)
+		{
+			i->first->setAAT(0.0);
+			for (int j = 0; j < i->second->size(); j++)
+			{
+				(*i->second)[j]->Delay = 0.0;
+			}
+		}
+	}
+
 	virtual Node* getInput(int index)
 	{
 		return (*_Inputs)[index];

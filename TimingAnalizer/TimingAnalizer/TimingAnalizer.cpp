@@ -15,7 +15,7 @@
 or contest.lib can be placed in the project directory") 
 */
 
-int main(int args, char** argv)
+int main(int args, char* argv[])
 {
 	string mainP = "C:\\Games\\TimingAnalyzer\\TimingAnalizer\\simple\\";
 	string veriP = mainP + "simple.v";

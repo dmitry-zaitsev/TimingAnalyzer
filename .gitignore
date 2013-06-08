@@ -57,3 +57,6 @@ _ReSharper*/
 testsource.txt
 *.png
 *.rar
+*.v
+*.sdc
+*.spef
