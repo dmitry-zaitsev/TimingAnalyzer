@@ -17,10 +17,11 @@ or contest.lib can be placed in the project directory")
 
 int main(int args, char* argv[])
 {
-	string mainP = "C:\\Games\\TimingAnalyzer\\TimingAnalizer\\DMA_fast\\";
-	string veriP = mainP + "DMA_fast.v";
-	string spefP = mainP + "DMA_fast.spef";
-	string sdcP = mainP + "DMA_fast.sdc";
+	string param = "DMA_fast";
+	string mainP = "C:\\Games\\TimingAnalyzer\\TimingAnalizer\\" + param + "\\";
+	string veriP = mainP + param + ".v";
+	string spefP = mainP + param + ".spef";
+	string sdcP = mainP + param + ".sdc";
 	string libP = mainP + "contest.lib";
 
 	Parser * p = new Parser();
@@ -61,11 +62,11 @@ int main(int args, char* argv[])
 	gr->SetCircuit(cir);
 
 	//Some Tests
-	//a->TestCheckInputEdges();
+	a->TestCheckInputEdges();
 	//a->TestFromInToOut();
 
-	a->CalcAAT();
-
+	//a->CalcAAT();
+	//a->CalcRAT();
 	return 0;
 }
 

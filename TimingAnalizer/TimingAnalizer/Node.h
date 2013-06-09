@@ -7,6 +7,15 @@ using namespace std;
 
 class Node
 {
+private:
+	string _Name;
+	LibElement * _Type;
+	double _AAT;
+	double _RAT;
+	double _Slack;
+	double _TT;
+	LibParserPinInfo _Pin;
+	bool _RATCalc;
 public:
 	Node(string name, LibElement * type);
 	~Node(void);
@@ -17,6 +26,16 @@ public:
 
 	virtual void setName(string name) {
 		_Name = name;
+	}
+
+	virtual bool IsRATCalculated()
+	{
+		return _RATCalc;
+	}
+
+	virtual void SetRATCalc(bool rat)
+	{
+		_RATCalc = rat;
 	}
 
 	virtual void setImplementation(LibElement* element) {
@@ -50,13 +69,14 @@ public:
 	virtual void setRAT(double rat)
 	{
 		_RAT=rat;
+		UpdateSlack();
 	}
 
 	virtual double getSlack() {
 		return _Slack;
 	}
 
-	virtual void setSlack()
+	virtual void UpdateSlack()
 	{
 		_Slack =_RAT - _AAT;
 	}
@@ -81,14 +101,14 @@ public:
 		_TT = tt;
 	}
 
-private:
-	string _Name;
-	LibElement * _Type;
-	double _AAT;
-	double _RAT;
-	double _Slack;
-	double _TT;
-	LibParserPinInfo _Pin;
+	virtual void ResetParams()
+	{
+		_AAT = 0.0;
+		_RAT = 0.0;
+		//_TT = 0.0;
+		_Slack = 0.0;
+		_RATCalc = false;
+	}
 };
 
 struct Compare

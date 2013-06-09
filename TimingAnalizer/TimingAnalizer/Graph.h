@@ -75,20 +75,11 @@ public:
 		_Circuit = c;
 	}
 
-	virtual void CalcSlack()
-	{
-		circuit::iterator iter;
-		for (iter = _Circuit->begin(); iter != _Circuit->end(); iter++)
-		{
-			iter->first->setSlack();
-		}
-	}
-
-	virtual void SetZeroAAT()
+	virtual void ResetNodes()
 	{
 		for (circuit::iterator i =_Circuit->begin(); i !=  _Circuit->end(); i++)
 		{
-			i->first->setAAT(0.0);
+			i->first->ResetParams();
 			for (int j = 0; j < i->second->size(); j++)
 			{
 				(*i->second)[j]->Delay = 0.0;

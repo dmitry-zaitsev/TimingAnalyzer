@@ -25,18 +25,14 @@ void Analyzer::TestCheckInputEdges()
 	for (circuit::iterator iIter = c->begin(); iIter != c->end(); iIter++)
 	{
 		int ups, downs;
+		string s;
 		Node * n = iIter->first;
-		if (n->GetPin().isInput && n->getType() != NULL)
+		if ((n->GetPin().isInput) && (n->getType() != NULL) && (!n->getType()->IsSequential()))
 		{
 			ups = 0;
 			downs = 0;
 			for (int iEdge = 0; iEdge  < iIter->second->size(); iEdge ++)
 			{
-				cout << n->getName() << "\t" 
-					<< (*iIter->second)[iEdge]->StartNode->getName() << "." 
-					<< (*iIter->second)[iEdge]->StartNode->GetPin().name 
-					<<"\t" << (*iIter->second)[iEdge]->EndNode->getName() 
-					<< "." << (*iIter->second)[iEdge]->EndNode->GetPin().name << endl;
 				if ((*iIter->second)[iEdge]->EndNode == n)
 				{
 					ups++;
@@ -46,14 +42,18 @@ void Analyzer::TestCheckInputEdges()
 					downs++;
 				}
 			}
-			cout << "Alltogether is: " << iIter->second->size() << endl;
-			if (ups != 1)
+			if (ups < 1)
 			{
+				cout << "Alltogether is: " << iIter->second->size() << endl;
 				cout << "Node with Name " << n->getName() << "_" << n->GetPin().name << " has UPS: " << ups <<endl;
+				
+				cin >> s;
 			}
 			if (downs != 1)
 			{
+				cout << "Alltogether is: " << iIter->second->size() << endl;
 				cout << "Node with Name " << n->getName() << "_" << n->GetPin().name << " has DOWNS: " << downs << endl;
+				cin >> s;
 			}
 		}
 	}

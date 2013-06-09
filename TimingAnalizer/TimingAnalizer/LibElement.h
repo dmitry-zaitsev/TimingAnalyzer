@@ -42,7 +42,7 @@ public:
 	virtual double GetValueFromTable(double cap, double tt, LibParserLUT table)
 	{
 		double value;
-		int cap1, cap2, tt1, tt2;
+		int cap1 = 0, cap2 = 0, tt1 = 0, tt2 = 0;
 
 		for (int i = 0; i < table.loadIndices.size(); i++)
 		{

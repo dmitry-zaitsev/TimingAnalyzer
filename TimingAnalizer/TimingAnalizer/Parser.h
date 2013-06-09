@@ -202,6 +202,7 @@ public:
 							/*
 							Find Edge which in pinNetPair and filled End and Start Point
 							*/
+							//Edge * edg = new Edge(*(*vec)[iEdge]);
 							Edge * edg = (*vec)[iEdge];
 							
 							if (pinNetPairs[iPair].second == edg->Name)
@@ -218,24 +219,26 @@ public:
 								{
 									//add elements in result map
 									
-									
+									int s;
 									Node * sn = edg->StartNode;
+									Edge * resEd = new Edge(*edg);
 									if (!(*cir)[sn])
 									{
 										(*cir)[sn] = new vector<Edge *>();
 									}
-									(*cir)[sn]->push_back(edg);
+									(*cir)[sn]->push_back(resEd);
 
 									Node * en = edg->EndNode;
 									if (!(*cir)[en])
 									{
 										(*cir)[en] = new vector<Edge *>();
 									}
-									(*cir)[en]->push_back(edg);
+									(*cir)[en]->push_back(resEd);
 
 									/*cout << edg->Name << "\t" << sn->getName() 
 										<< ": " << sn->GetPin().name << "\t" 
-										<< en->getName() << ": " << en->GetPin().name << endl;*/
+										<< en->getName() << ": " << en->GetPin().name << endl;
+									cin >> s;*/
 								}
 							}
 						}

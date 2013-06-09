@@ -36,7 +36,7 @@ public:
 						}
 						else
 						{
-							if (ed->EndNode->getName() != n->getName())
+							if (enN->getName() != n->getName())
 							{
 								Node * buf = enN;
 								stN = buf;
@@ -53,7 +53,7 @@ public:
 
 	virtual void CalcAAT()
 	{
-		_Graph->SetZeroAAT();
+		_Graph->ResetNodes();
 		for (int i = 0; i < _Graph->InsCount(); i++)
 		{
 			Node * inp = _Graph->getInput(i);
@@ -67,8 +67,11 @@ public:
 		cout << "CalcAAT() is done." << endl;
 	}
 
-	virtual void CalcRAT(double clk, circuit * c)
+	virtual void CalcRAT()
 	{
+		circuit * c = _Graph->getCircuit();
+		double clk = _Graph->GetClock()->Period;
+
 		for (circuit::iterator i = c->begin(); i != c->end(); i++)
 		{
 			i->first->setRAT(clk);
@@ -77,7 +80,6 @@ public:
 		for (int i = 0; i < _Graph->OutsCount(); i++)
 		{
 			Node * otp = _Graph->getOutput(i);
-			otp->setRAT(clk);
 			RecursiveCalcRAT(otp);
 		}
 	}
@@ -125,15 +127,17 @@ private:
 					Edge * jEd = (*edFromOut)[j];
 					if (jEd->StartNode == out)
 					{
-						cap = cap + jEd->Cap + jEd->EndNode->GetPin().capacitance;
+						cap += jEd->Cap + jEd->EndNode->GetPin().capacitance;
 					}
 				}
 
 				double fallC = 0.0, riseC = 0.0, fallT = 0.0, riseT = 0.0;
+
 				if (out->getType() != NULL)
 				{
 					LibElement * le = out->getType();
 					vector<LibParserTimingInfo> vTI = le->GetArcs();
+
 					for (int j = 0; j < vTI.size(); j++)
 					{
 						/*
@@ -149,7 +153,6 @@ private:
 							fallC >= riseC ? iEd->Delay = fallC : iEd->Delay = riseC;
 
 							resDelay = iEd->Delay;
-							cout << in->getAAT() << endl;
 							double resAAT = !out->getType()->IsSequential() ? in->getAAT() + resDelay : resDelay;
 							if (out->getAAT() < resAAT)
 							{
@@ -160,13 +163,13 @@ private:
 							riseT = le->GetValueFromTable(cap, tt, vTI[j].riseTransition);
 						
 							fallT >= riseT ? tt = fallT : tt = riseT;
-							//
+							/*
 							cout << "Result Delay for Edge between " << in->getName() 
 								<< "." << in->GetPin().name << " and " << out->getName()
 								<< "." << out->GetPin().name <<" is " << resDelay << endl;
 							cout << "Result AAT for EndNode is " << resAAT;
 							cout << ". TT is " << tt << endl << endl;
-							
+							*/
 							vector<Edge *> * forRecur = _Graph->getEdges(out);
 		
 							for (int i = 0; i < forRecur->size(); i++)
@@ -202,18 +205,25 @@ private:
 	{
 		vector <Edge *> * edges = _Graph->getEdges(out);
 		double rat = 0.0;
+
 		for (unsigned int i = 0; i < edges->size(); i++)
 		{
 			Edge * ed = edges->at(i);
-			if (ed->StartNode != out)
+			if (ed->EndNode == out && !ed->StartNode->IsRATCalculated())
 			{
-				rat = out->getRAT() - ed->Delay;
-				if (ed->StartNode->getRAT() > rat)
+				if(ed->StartNode->getType() != NULL)
 				{
-					ed->StartNode->setRAT(rat);
-				}
-				if (ed->StartNode->getType() != NULL)
-				{
+					if (!ed->StartNode->getType()->IsSequential())
+					{
+						rat = out->getRAT() - ed->Delay;
+						if(ed->StartNode->getRAT() > rat)
+						{
+							ed->StartNode->setRAT(rat);
+							ed->StartNode->SetRATCalc(true);
+							cout << ed->StartNode->getName() << "." << ed->StartNode->GetPin().name << " " 
+								<< rat << " - " << ed->StartNode->getAAT() << "\t" << ed->StartNode->getSlack() << endl;
+						}
+					}
 					RecursiveCalcRAT(ed->StartNode);
 				}
 			}
