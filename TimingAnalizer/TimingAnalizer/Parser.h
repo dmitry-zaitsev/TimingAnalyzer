@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 #include "Node.h"
 #include "parser_helper.h"
 #include <cassert>
@@ -7,8 +8,41 @@
 #include "LibElement.h"
 #include "Library.h"
 
+struct Wire
+{
+	bool IsOutput;
+	bool IsInput;
+	Node * Node;
+	double Cap;
+};
+
+typedef map<Wire *, vector<Edge *> *> wires;
+
+struct WCompare
+{
+	bool operator()(Wire * const &a, Wire * const &b) const
+	{
+		return (a->Node->getName()).compare(b->Node->getName()) > 0;
+	}
+};
+
 class Parser
 {
+private:
+	//fields
+	wires * _Wires;
+
+	//methods
+	void GetInsideEdges(circuit * cir, vector<Edge *> * vec, Wire * w);
+
+	void GetInputsEdges(circuit * cir, vector<Node *> * ins,vector<Edge *> * vec, Wire * w);
+
+	void GetOutputsEdges(circuit * cir, vector<Node *> * outs,vector<Edge *> * vec, Wire * w);
+
+	void GetWires(string spefFileName, Clock * clk, vector<Node *> * ins, vector<Node *> * outs);
+
+	void GetEdgesFromWires(circuit * cir, vector<Node *> * ins, vector<Node *> * outs);
+
 public:
 	//constructors
 	Parser(void);
@@ -46,7 +80,6 @@ public:
 				Node  * n = new Node (portName, NULL);
 				n->setAAT(delay);
 				//(*cir)[n] = NULL;
-				cir->insert(pair<Node *, vector<Edge *> *>(n, NULL));
 				vec->push_back(n);
 			}
 		} while (valid) ;
@@ -94,7 +127,7 @@ public:
 			if (valid)
 			{
 				Node  * n = new Node (portName, NULL);
-				(*cir)[n] = NULL;
+				//(*cir)[n] = NULL;
 				vec->push_back(n);
 			}
 		} 
@@ -103,60 +136,16 @@ public:
 		return vec;
 	}
 
-	virtual vector<Edge *> * GetEdges(string spefFileName, Clock * clk, vector<Node *> * ins, vector<Node *> * outs)
-	{
-		SpefParser sp (spefFileName) ;
-
-		string net ;
-		double cap ;
-		vector<Edge *> * vec = new vector<Edge *>();
-		bool valid = sp.read_net_cap (net, cap) ;
-
-		while (valid) 
-		{
-			if (clk->Port != net)
-			{
-				Edge* ed = new Edge;
-				ed->Name = net;
-				ed->Cap = cap;
-				ed->StartNode = NULL;
-				ed->EndNode = NULL;
-
-				for (int i = 0; i < ins->size(); i++)
-				{
-					Node * sn = (*ins)[i];
-					if (ed->Name == sn->getName())
-					{
-						ed->StartNode = sn;
-					}
-				}
-
-				for (int i = 0; i < outs->size(); i++)
-				{
-					Node * en = (*outs)[i];
-					if (ed->Name == en->getName())
-					{
-						ed->EndNode = en;
-					}
-				}
-				vec->push_back(ed);
-			}
-			valid = sp.read_net_cap (net, cap) ;
-		}
-		cout << "Parsing completed: Edges" << endl;
-		return vec;
-	}
-
 	virtual void GetCircuit(VerilogParser &vp, string spefFileName, 
 		circuit * cir, Library * lib, Clock * clk, vector<Node *> * ins, vector<Node *> * outs) 
 	{
 		bool valid;
-		vector<Edge *> * vec = GetEdges(spefFileName, clk, ins, outs);
+		GetWires(spefFileName, clk, ins, outs);
 		
 		do 
 		{
 			/*
-			Get Nodes and Start, End Nodes of Edges
+			Get Nodes and Fill Wires
 			*/
 			string cellType, cellInst ;
 			vector<std::pair<string, string> > pinNetPairs ;
@@ -195,56 +184,77 @@ public:
 						//create node
 						Node * n = new Node(cellInst, type);
 						n->SetPin(pin);
-						//cout << n->getName() << "\t" << n->GetPin().name << endl;
-
-						for (int iEdge = 0; iEdge < vec->size(); iEdge++)
+						(*cir)[n] = new vector<Edge *> ();
+						for (wires::iterator iWire = _Wires->begin(); iWire != _Wires->end(); iWire++)
 						{
 							/*
-							Find Edge which in pinNetPair and filled End and Start Point
+							Filled Wire Map pinNetPair and filled
 							*/
-							//Edge * edg = new Edge(*(*vec)[iEdge]);
-							Edge * edg = (*vec)[iEdge];
 							
-							if (pinNetPairs[iPair].second == edg->Name)
+							if (pinNetPairs[iPair].second == iWire->first->Node->getName())
 							{
-								if (edg->StartNode == NULL)
+								Edge * edg = new Edge();
+
+								if (iWire->first->IsInput 
+									|| (iWire->first->IsOutput && n->GetPin().isInput)
+									|| (!iWire->first->IsInput && !iWire->first->IsOutput && n->GetPin().isInput)
+									)
 								{
-									edg->StartNode = n;
-								}
-								else if (edg->EndNode == NULL)
-								{
+									edg->StartNode = iWire->first->Node;
 									edg->EndNode = n;
 								}
-								if (edg->StartNode != NULL && edg->EndNode != NULL)
+								else if ((iWire->first->IsOutput && !n->GetPin().isInput)
+									|| (!iWire->first->IsInput && !iWire->first->IsOutput && !n->GetPin().isInput)
+									)
 								{
-									//add elements in result map
-									
-									int s;
-									Node * sn = edg->StartNode;
-									Edge * resEd = new Edge(*edg);
-									if (!(*cir)[sn])
-									{
-										(*cir)[sn] = new vector<Edge *>();
-									}
-									(*cir)[sn]->push_back(resEd);
-
-									Node * en = edg->EndNode;
-									if (!(*cir)[en])
-									{
-										(*cir)[en] = new vector<Edge *>();
-									}
-									(*cir)[en]->push_back(resEd);
-
-									/*cout << edg->Name << "\t" << sn->getName() 
-										<< ": " << sn->GetPin().name << "\t" 
-										<< en->getName() << ": " << en->GetPin().name << endl;
-									cin >> s;*/
+									edg->StartNode = n;
+									edg->EndNode = iWire->first->Node;
 								}
+
+								if (!iWire->second)
+								{
+									iWire->second = new vector<Edge *> ();
+								}
+
+								iWire->second->push_back(edg);
+
+								/*if(iWire->first->IsInput)
+								{
+									edg->StartNode = iWire->first->Node;
+									edg->EndNode = n;
+								}
+								else if (iWire->first->IsOutput)
+								{
+									if (n->GetPin().isInput)
+									{
+										edg->StartNode = iWire->first->Node;
+										edg->EndNode = n;
+									}
+									else
+									{
+										edg->StartNode = n;
+										edg->EndNode = iWire->first->Node;
+									}
+								}
+								else
+								{
+									if (n->GetPin().isInput)
+									{
+										edg->StartNode = iWire->first->Node;
+										edg->EndNode = n;
+									}
+									else
+									{
+										edg->StartNode = n;
+										edg->EndNode = iWire->first->Node;
+									}
+								}*/
 							}
 						}
 				}
 			}
-		} while (valid) ; 
+		} while (valid) ;
+		GetEdgesFromWires(cir, ins, outs);
 		cout << "Parsing completed: Circuit" << endl;
 	}
 
