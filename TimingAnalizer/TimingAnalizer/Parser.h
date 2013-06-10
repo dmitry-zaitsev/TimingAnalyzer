@@ -26,8 +26,8 @@ public:
 		clk->Name = clockName;
 		clk->Port = clockPort;
 		clk->Period = period;
-		return clk;
 		cout << "Parsing completed: Clock" << endl;
+		return clk;
 	}
 
 	virtual vector<Node *> * GetSdcIns(SdcParser &sp, circuit * cir)
@@ -45,8 +45,7 @@ public:
 			{
 				Node  * n = new Node (portName, NULL);
 				n->setAAT(delay);
-				//(*cir)[n] = NULL;
-				cir->insert(pair<Node *, vector<Edge *> *>(n, NULL));
+				(*cir)[n] = NULL;
 				vec->push_back(n);
 			}
 		} while (valid) ;
@@ -372,23 +371,23 @@ public:
 	}
 
 	virtual vector<LibElement *> * GetLib(string libFileName)
+	{
+		LibParser lp (libFileName) ;
+		bool valid;
+		vector<LibElement *> * v = new vector<LibElement *>();
+		do 
 		{
-			LibParser lp (libFileName) ;
-			bool valid;
-			vector<LibElement *> * v = new vector<LibElement *>();
-			do 
+			LibParserCellInfo cell ;
+			valid = lp.read_cell_info (cell) ;
+			if (valid) 
 			{
-				LibParserCellInfo cell ;
-				valid = lp.read_cell_info (cell) ;
-				if (valid) 
-				{
-					LibElement * el = new LibElement(cell.name, cell.area, 
-						cell.leakagePower, cell.isSequential, cell.dontTouch, cell.pins, cell.timingArcs);
-					v->push_back(el);
-				}
-			} while (valid) ;
-			cout << "Parsing completed: Library" << endl;
-			return v;
-		}
+				LibElement * el = new LibElement(cell.name, cell.area, 
+					cell.leakagePower, cell.isSequential, cell.dontTouch, cell.pins, cell.timingArcs);
+				v->push_back(el);
+			}
+		} while (valid) ;
+		cout << "Parsing completed: Library" << endl;
+		return v;
+	}
 };
 	  
